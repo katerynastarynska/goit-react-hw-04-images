@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import Searchbar from './Searchbar/Searchbar';
 import Loader from './Loader/Loader';
@@ -14,6 +14,8 @@ const STATUS = {
   REJECTED: 'rejected',
 };
 
+const limit = 12;
+
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [images, setImages] = useState([]);
@@ -21,7 +23,6 @@ const App = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [limit, setLimit] = useState(12);
 
   const handleFormImageSearch = searchQuery => {
     setSearchQuery(searchQuery);
@@ -29,21 +30,7 @@ const App = () => {
     setImages([]);
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-    setImages([]);
-    fetchImages();
-  }, [searchQuery]);
-
-  useEffect(() => {
-    fetchImages();
-  }, [currentPage]);
-
-  useEffect(() => {
-    toast.error(error);
-  }, [status, error]);
-
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     await setStatus(STATUS.PENDING);
     try {
       if (!searchQuery) {
@@ -61,6 +48,7 @@ const App = () => {
       }
 
       const data = await getImages({ searchQuery, limit, currentPage });
+
       if (!data?.hits) {
         toast.error('Service not available');
         throw new Error('Service not available');
@@ -71,7 +59,7 @@ const App = () => {
         setImages([]);
         return;
       }
-      setImages([...images, ...data.hits]);
+      setImages(prevImages => [...prevImages, ...data.hits]);
       setTotalPages(Math.ceil(data.total / limit));
       setStatus(STATUS.RESOLVED);
       setError(null);
@@ -79,7 +67,26 @@ const App = () => {
       setError('Bad request');
       setStatus(STATUS.REJECTED);
     }
-  };
+  }, [searchQuery, currentPage]);
+
+  // useEffect(() => {
+  //   setCurrentPage(1);
+  //   setImages([]);
+  //   fetchImages();
+  // }, [searchQuery, fetchImages]);
+
+  // useEffect(() => {
+  //   fetchImages();
+  // }, [currentPage, fetchImages]);
+
+  useEffect(() => {
+    fetchImages();
+  }, [searchQuery, currentPage, fetchImages]);
+
+  useEffect(() => {
+    toast.error(error);
+  }, [status, error]);
+
   const handleLoadMore = () => {
     setCurrentPage(prevCurrentPage => prevCurrentPage + 1);
   };
