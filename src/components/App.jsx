@@ -35,6 +35,7 @@ const App = () => {
     try {
       if (!searchQuery) {
         setStatus(STATUS.IDLE);
+        setImages([]);
         return;
       }
 
@@ -48,7 +49,6 @@ const App = () => {
       }
 
       const data = await getImages({ searchQuery, limit, currentPage });
-
       if (!data?.hits) {
         toast.error('Service not available');
         throw new Error('Service not available');
@@ -68,16 +68,6 @@ const App = () => {
       setStatus(STATUS.REJECTED);
     }
   }, [searchQuery, currentPage]);
-
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  //   setImages([]);
-  //   fetchImages();
-  // }, [searchQuery, fetchImages]);
-
-  // useEffect(() => {
-  //   fetchImages();
-  // }, [currentPage, fetchImages]);
 
   useEffect(() => {
     fetchImages();
