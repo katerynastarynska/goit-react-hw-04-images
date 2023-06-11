@@ -39,7 +39,7 @@ const App = () => {
         return;
       }
    
-      const regex = /^[A-Za-z0-9]+$/;
+      const regex = /^[A-Za-z0-9А-Яа-яЁёЇїІіЄєҐґ]+$/;
       if (!regex.test(searchQuery)) {
         setStatus(STATUS.IDLE);
         toast.error(
