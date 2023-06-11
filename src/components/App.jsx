@@ -38,7 +38,7 @@ const App = () => {
         setImages([]);
         return;
       }
-
+   
       const regex = /^[A-Za-z0-9]+$/;
       if (!regex.test(searchQuery)) {
         setStatus(STATUS.IDLE);
@@ -69,13 +69,18 @@ const App = () => {
     }
   }, [searchQuery, currentPage]);
 
-  useEffect(() => {
-    fetchImages();
-  }, [searchQuery, currentPage, fetchImages]);
+  // useEffect(() => {
+  //   fetchImages();
+  // }, [searchQuery, currentPage, fetchImages]);
 
   useEffect(() => {
     toast.error(error);
   }, [status, error]);
+
+  useEffect(() => {
+    if (!searchQuery) return;
+    fetchImages();
+  }, [searchQuery, currentPage, fetchImages]);
 
   const handleLoadMore = () => {
     setCurrentPage(prevCurrentPage => prevCurrentPage + 1);
